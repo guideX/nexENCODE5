@@ -1,19 +1,32 @@
 using NAudio.Wave;
 using nexENCODE_Studio.Models;
+using nexENCODE_Studio.Visualization;
 
 namespace nexENCODE_Studio.Services
 {
     /// <summary>
-    /// Service for playing audio files
+    /// Service for playing audio files with visualization support
     /// </summary>
     public class AudioPlayerService : IDisposable
     {
         private IWavePlayer? _waveOut;
         private AudioFileReader? _audioFileReader;
+        private VisualizationSampleProvider? _visualizationProvider;
+        private AudioVisualizationEngine? _visualizationEngine;
         private bool _isDisposed;
         
         public event EventHandler? PlaybackStopped;
         public event EventHandler<TimeSpan>? PositionChanged;
+        
+        /// <summary>
+        /// Gets the visualization engine for real-time audio visualization
+        /// </summary>
+        public AudioVisualizationEngine? VisualizationEngine => _visualizationEngine;
+        
+        /// <summary>
+        /// Gets or sets whether visualization is enabled
+        /// </summary>
+        public bool VisualizationEnabled { get; set; } = true;
         
         /// <summary>
         /// Gets whether audio is currently playing
@@ -49,15 +62,30 @@ namespace nexENCODE_Studio.Services
         }
         
         /// <summary>
-        /// Loads an audio file for playback
+        /// Loads an audio file for playback with optional visualization
         /// </summary>
-        public void Load(string filePath)
+        public void Load(string filePath, VisualizationOptions? visualizationOptions = null)
         {
             Stop();
             
             _audioFileReader = new AudioFileReader(filePath);
             _waveOut = new WaveOutEvent();
-            _waveOut.Init(_audioFileReader);
+            
+            if (VisualizationEnabled)
+            {
+                // Set up visualization
+                _visualizationEngine = new AudioVisualizationEngine(visualizationOptions);
+                _visualizationProvider = new VisualizationSampleProvider(
+                    _audioFileReader, 
+                    _visualizationEngine
+                );
+                _waveOut.Init(_visualizationProvider);
+            }
+            else
+            {
+                _waveOut.Init(_audioFileReader);
+            }
+            
             _waveOut.PlaybackStopped += OnPlaybackStopped;
         }
         
@@ -110,6 +138,37 @@ namespace nexENCODE_Studio.Services
             Play();
         }
         
+        /// <summary>
+        /// Generates waveform data for the currently loaded file
+        /// </summary>
+        public WaveformData? GenerateWaveform(int width, int samplesPerPixel = 128)
+        {
+            if (_audioFileReader == null) return null;
+            
+            // Save current position
+            var currentPosition = _audioFileReader.CurrentTime;
+            
+            // Generate waveform
+            var waveform = WaveformGenerator.GenerateWaveform(
+                _audioFileReader.FileName, 
+                width, 
+                samplesPerPixel
+            );
+            
+            // Restore position
+            _audioFileReader.CurrentTime = currentPosition;
+            
+            return waveform;
+        }
+        
+        /// <summary>
+        /// Gets real-time visualization engine
+        /// </summary>
+        public AudioVisualizationEngine? GetVisualizationEngine()
+        {
+            return _visualizationEngine;
+        }
+        
         private void OnPlaybackStopped(object? sender, StoppedEventArgs e)
         {
             PlaybackStopped?.Invoke(this, EventArgs.Empty);
@@ -120,6 +179,7 @@ namespace nexENCODE_Studio.Services
             if (!_isDisposed)
             {
                 Stop();
+                _visualizationEngine?.Dispose();
                 _isDisposed = true;
             }
         }
