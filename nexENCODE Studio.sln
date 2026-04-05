@@ -17,6 +17,13 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "nexENCODE", "..\..\devgithu
 EndProject
 Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "nexENCODE.VB", "..\..\devgithub\team-nexgen\nexencode\5.00\nexENCODE.VB\nexENCODE.VB.vbproj", "{4E257A98-47D7-4C92-B1D6-12582085B254}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "nexENCODE Studio 4", "nexENCODE Studio 4", "{ECBB7D8B-E9DB-4DC1-B20D-36409F0A9506}"
+	ProjectSection(SolutionItems) = preProject
+		..\..\devgithub\team-nexgen\nexencode\4.28\mdlShapes.bas = ..\..\devgithub\team-nexgen\nexencode\4.28\mdlShapes.bas
+		..\..\devgithub\team-nexgen\nexencode\4.28\mdlSkin.bas = ..\..\devgithub\team-nexgen\nexencode\4.28\mdlSkin.bas
+		..\..\devgithub\team-nexgen\nexencode\4.28\mdlSkinTypes.bas = ..\..\devgithub\team-nexgen\nexencode\4.28\mdlSkinTypes.bas
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU

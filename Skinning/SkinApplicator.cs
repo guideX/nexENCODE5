@@ -36,8 +36,7 @@ namespace nexENCODE_Studio.Skinning
 
             if (File.Exists(skin.MainWindowBackgroundImage))
             {
-                using var imageStream = File.OpenRead(skin.MainWindowBackgroundImage);
-                form.BackgroundImage = Image.FromStream(imageStream);
+                form.BackgroundImage = LoadImageFromFile(skin.MainWindowBackgroundImage);
             }
 
             if (File.Exists(skin.IconPath))
@@ -229,9 +228,15 @@ namespace nexENCODE_Studio.Skinning
             }
 
             var oldImage = pictureBox.Image;
-            using var stream = File.OpenRead(path);
-            pictureBox.Image = Image.FromStream(stream);
+            pictureBox.Image = LoadImageFromFile(path);
             oldImage?.Dispose();
+        }
+
+        private static Image LoadImageFromFile(string path)
+        {
+            var bytes = File.ReadAllBytes(path);
+            var ms = new MemoryStream(bytes);
+            return Image.FromStream(ms);
         }
 
         private static Region CreateRegion(SkinShapeDefinition shape)
