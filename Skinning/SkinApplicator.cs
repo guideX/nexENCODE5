@@ -76,6 +76,11 @@ namespace nexENCODE_Studio.Skinning
                         continue;
                     }
 
+                    if (shape.DestRgn >= regions.Length || shape.SrcRgn1 >= regions.Length || shape.SrcRgn2 >= regions.Length)
+                    {
+                        continue;
+                    }
+
                     var source1 = regions[shape.SrcRgn1];
                     var source2 = regions[shape.SrcRgn2];
                     if (source1 == null || source2 == null)
@@ -83,7 +88,6 @@ namespace nexENCODE_Studio.Skinning
                         continue;
                     }
 
-                    regions[shape.DestRgn]?.Dispose();
                     var combined = source1.Clone();
                     switch (shape.CombineMode)
                     {
@@ -100,8 +104,14 @@ namespace nexENCODE_Studio.Skinning
                             combined.Exclude(source2);
                             break;
                         case SkinCombineMode.Copy:
+                            combined.Dispose();
                             combined = source2.Clone();
                             break;
+                    }
+
+                    if (shape.DestRgn != shape.SrcRgn1 && shape.DestRgn != shape.SrcRgn2)
+                    {
+                        regions[shape.DestRgn]?.Dispose();
                     }
 
                     regions[shape.DestRgn] = combined;
@@ -263,8 +273,8 @@ namespace nexENCODE_Studio.Skinning
         private static Region CreateRoundedRegion(Rectangle rectangle, int radiusX, int radiusY)
         {
             var path = new GraphicsPath();
-            var diameterX = radiusX * 2;
-            var diameterY = radiusY * 2;
+            var diameterX = Math.Min(rectangle.Width, radiusX * 2);
+            var diameterY = Math.Min(rectangle.Height, radiusY * 2);
 
             path.AddArc(rectangle.Left, rectangle.Top, diameterX, diameterY, 180, 90);
             path.AddArc(rectangle.Right - diameterX, rectangle.Top, diameterX, diameterY, 270, 90);
