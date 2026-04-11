@@ -1,5 +1,6 @@
 using System.Runtime.InteropServices;
 using nexENCODE_Studio.Skinning;
+using nexENCODE_Studio.Forms;
 
 namespace nexENCODE_Studio
 {
@@ -57,6 +58,18 @@ namespace nexENCODE_Studio
                     WindowState = WindowState == FormWindowState.Maximized
                         ? FormWindowState.Normal
                         : FormWindowState.Maximized;
+                    break;
+                case "RipButton_Click":
+                    var ripForm = new frmRip();
+                    ripForm.Show(this);
+                    break;
+                case "Encode_Click":
+                    var encodeForm = new frmEncode();
+                    encodeForm.Show(this);
+                    break;
+                case "Decode_Click":
+                    var decodeForm = new frmDecode();
+                    decodeForm.Show(this);
                     break;
                 default:
                     _skinApplicator.SetStatusText($"{button.Name} pressed ({button.OnClick}).");
