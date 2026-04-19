@@ -52,7 +52,8 @@ namespace nexENCODE_Studio.Services.Native
 
             if (result != 0)
             {
-                throw new InvalidOperationException($"MCI Error: {GetErrorMessage(result)}");
+                // Include numeric result and command text to aid diagnostics
+                throw new InvalidOperationException($"MCI Error {result} executing '{command}': {GetErrorMessage(result)}");
             }
         }
     }

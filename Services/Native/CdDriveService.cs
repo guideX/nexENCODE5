@@ -31,7 +31,7 @@ namespace nexENCODE_Studio.Services.Native
     internal class CdDriveService : IDisposable
     {
         private readonly char _driveLetter;
-        private string _deviceAlias;
+        private readonly string _deviceAlias;
         private bool _isOpen;
         private bool _disposed;
 
@@ -51,6 +51,27 @@ namespace nexENCODE_Studio.Services.Native
 
             try
             {
+                // Validate the drive exists and is a CD-ROM before issuing MCI commands
+                var drives = DriveInfo.GetDrives();
+                bool found = false;
+                foreach (var d in drives)
+                {
+                    if (char.ToUpper(d.Name[0]) == _driveLetter)
+                    {
+                        found = true;
+                        if (d.DriveType != DriveType.CDRom)
+                        {
+                            throw new InvalidOperationException($"Drive {_driveLetter}: is not a CD-ROM drive.");
+                        }
+                        break;
+                    }
+                }
+
+                if (!found)
+                {
+                    throw new InvalidOperationException($"Drive {_driveLetter}: not found on this system.");
+                }
+
                 // Open the CD drive
                 MciNativeMethods.ExecuteCommandNoReturn(
                     $"open {_driveLetter}: type cdaudio alias {_deviceAlias} shareable"
